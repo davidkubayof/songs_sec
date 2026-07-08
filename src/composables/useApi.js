@@ -15,10 +15,12 @@ export function fetchJson(url, params, options) {
         .then(async response => {
             const duration_ms = Math.round(performance.now() - start);
             const text = await response.clone().text();
-            let parsed = null;
+            let parsed;
             try {
                 parsed = JSON.parse(text);
-            } catch {}
+            } catch {
+                parsed = null;
+            }
 
             sendLog({
                 type: "api",
