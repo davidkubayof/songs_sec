@@ -19,6 +19,12 @@
         </Transition>
         <div v-if="video && !video.error" class="flex gap-5">
             <div class="min-w-0 flex-auto">
+                <div
+                    v-if="mockStreamsEnabled"
+                    class="mb-2 rounded-sm bg-amber-500/90 px-3 py-1.5 text-sm font-medium text-black"
+                >
+                    Mock mode — testing offline playback
+                </div>
                 <Teleport defer to="#theaterModeSpot" :disabled="!theaterMode">
                     <div class="flex flex-row">
                         <keep-alive>
@@ -368,7 +374,7 @@ import ToastComponent from "./ToastComponent.vue";
 import UiCheckbox from "./ui/Checkbox.vue";
 import { parseTimeParam } from "@/utils/Misc";
 import { purifyHTML, rewriteDescription } from "@/utils/HtmlUtils";
-import { fetchJson, apiUrl } from "@/composables/useApi.js";
+import { fetchJson, apiUrl, fetchStreamInfo, isMockStreamsEnabled } from "@/composables/useApi.js";
 import {
     getPreferenceBoolean,
     getPreferenceNumber,
@@ -423,6 +429,8 @@ const isListening = computed(() => {
     return getPreferenceBoolean("listen", false);
 });
 
+const mockStreamsEnabled = isMockStreamsEnabled();
+
 const selectedAutoPlayEnabled = computed(() => {
     return Number(selectedAutoPlay.value) >= 1;
 });
@@ -468,10 +476,14 @@ const youtubeVideoHref = computed(() => {
 });
 
 function fetchVideo() {
-    return fetchJson(apiUrl() + "/streams/" + getVideoId());
+    return fetchStreamInfo(getVideoId());
 }
 
 async function fetchSponsors() {
+    if (isMockStreamsEnabled()) {
+        return { segments: [] };
+    }
+
     var selectedSkip = getPreferenceString("selectedSkip", "sponsor,interaction,selfpromo,music_offtopic").split(",");
     const skipOptions = getPreferenceJSON("skipOptions");
     if (skipOptions !== undefined) {

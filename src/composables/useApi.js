@@ -1,5 +1,8 @@
 import { getPreferenceBoolean, getPreferenceString } from "./usePreferences.js";
 import { sendLog } from "@/utils/logger.js";
+import { isMockStreamsEnabled, getMockStreamResponse } from "@/utils/mockStreams.js";
+
+export { isMockStreamsEnabled };
 
 export function fetchJson(url, params, options) {
     if (params) {
@@ -58,6 +61,13 @@ export function apiUrl() {
     const envApi = import.meta.env.VITE_PIPED_API;
     if (import.meta.env.VITE_LOCK_INSTANCE === "true" && envApi) return envApi;
     return getPreferenceString("instance", envApi);
+}
+
+export function fetchStreamInfo(videoId) {
+    if (isMockStreamsEnabled()) {
+        return Promise.resolve(getMockStreamResponse(videoId));
+    }
+    return fetchJson(apiUrl() + "/streams/" + videoId);
 }
 
 export function authApiUrl() {

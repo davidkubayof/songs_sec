@@ -441,8 +441,7 @@ async function setPlayerAttrs(localPlayer, el, uri, mime, shaka) {
     });
 
     const quality = getPreferenceNumber("quality", 0);
-    const qualityConds =
-        quality > 0 && (audioStreams.value.length > 0 || props.video.livestream) && !disableVideo;
+    const qualityConds = quality > 0 && (audioStreams.value.length > 0 || props.video.livestream) && !disableVideo;
     if (qualityConds) playerInstance.configure("abr.enabled", false);
 
     const time = route.query.t ?? route.query.start;
@@ -612,12 +611,7 @@ async function loadVideo() {
     if (props.video.livestream) {
         uri = props.video.hls;
         mime = "application/x-mpegURL";
-    } else if (
-        audioStreams.value.length > 0 &&
-        !lbry &&
-        MseSupport &&
-        !getPreferenceBoolean("preferHls", false)
-    ) {
+    } else if (audioStreams.value.length > 0 && !lbry && MseSupport && !getPreferenceBoolean("preferHls", false)) {
         if (!props.video.dash) {
             const dash = (await import("../utils/DashUtils.js")).generate_dash_file_from_formats(
                 streams,
