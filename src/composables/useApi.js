@@ -55,7 +55,9 @@ export function hashCode(s) {
 }
 
 export function apiUrl() {
-    return getPreferenceString("instance", import.meta.env.VITE_PIPED_API);
+    const envApi = import.meta.env.VITE_PIPED_API;
+    if (import.meta.env.VITE_LOCK_INSTANCE === "true" && envApi) return envApi;
+    return getPreferenceString("instance", envApi);
 }
 
 export function authApiUrl() {

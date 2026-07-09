@@ -132,6 +132,9 @@ const shouldAutoPlay = computed(() => {
     return getPreferenceBoolean("playerAutoPlay", true) && !props.isEmbed;
 });
 
+const audioStreams = computed(() => props.video?.audioStreams ?? []);
+const videoStreams = computed(() => props.video?.videoStreams ?? []);
+
 const preferredVideoCodecs = computed(() => {
     var preferredVideoCodecs = [];
     const enabledCodecs = getPreferenceString("enabledCodecs", "vp9,avc").split(",");
@@ -439,7 +442,7 @@ async function setPlayerAttrs(localPlayer, el, uri, mime, shaka) {
 
     const quality = getPreferenceNumber("quality", 0);
     const qualityConds =
-        quality > 0 && (props.video.audioStreams.length > 0 || props.video.livestream) && !disableVideo;
+        quality > 0 && (audioStreams.value.length > 0 || props.video.livestream) && !disableVideo;
     if (qualityConds) playerInstance.configure("abr.enabled", false);
 
     const time = route.query.t ?? route.query.start;
@@ -579,14 +582,25 @@ async function loadVideo() {
 
     const el = videoEl.value;
 
+    if (
+        !props.video?.livestream &&
+        !props.video?.hls &&
+        !props.video?.dash &&
+        audioStreams.value.length === 0 &&
+        videoStreams.value.length === 0
+    ) {
+        error.value = 1;
+        return;
+    }
+
     el.setAttribute("poster", props.video.thumbnailUrl);
 
     const noPrevPlayer = !playerInstance;
 
     var streams = [];
 
-    streams.push(...props.video.audioStreams);
-    streams.push(...props.video.videoStreams);
+    streams.push(...audioStreams.value);
+    streams.push(...videoStreams.value);
 
     const MseSupport = window.MediaSource !== undefined || window.ManagedMediaSource !== undefined;
 
@@ -599,7 +613,7 @@ async function loadVideo() {
         uri = props.video.hls;
         mime = "application/x-mpegURL";
     } else if (
-        props.video.audioStreams.length > 0 &&
+        audioStreams.value.length > 0 &&
         !lbry &&
         MseSupport &&
         !getPreferenceBoolean("preferHls", false)
@@ -647,7 +661,12 @@ async function loadVideo() {
         uri = props.video.hls;
         mime = "application/x-mpegURL";
     } else {
-        uri = props.video.videoStreams.findLast(stream => stream.codec == null).url;
+        const fallbackStream = videoStreams.value.findLast(stream => stream.codec == null);
+        if (!fallbackStream) {
+            error.value = 1;
+            return;
+        }
+        uri = fallbackStream.url;
         mime = "video/mp4";
     }
 

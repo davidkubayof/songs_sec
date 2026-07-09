@@ -1,5 +1,5 @@
 <template>
-    <div v-if="video && isEmbed" class="absolute top-0 left-0 z-50 size-full bg-black">
+    <div v-if="video && isEmbed && !video.error" class="absolute top-0 left-0 z-50 size-full bg-black">
         <VideoPlayer
             ref="videoPlayer"
             :video="video"
@@ -17,7 +17,7 @@
                 <i18n-t keypath="info.next_video_countdown">{{ counter }}</i18n-t>
             </ToastComponent>
         </Transition>
-        <div v-show="!video.error" class="flex gap-5">
+        <div v-if="video && !video.error" class="flex gap-5">
             <div class="min-w-0 flex-auto">
                 <Teleport defer to="#theaterModeSpot" :disabled="!theaterMode">
                     <div class="flex flex-row">
