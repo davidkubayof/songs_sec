@@ -761,7 +761,7 @@ onMounted(() => {
                 };
             }
         })();
-        if (active.value) videoPlayer.value.loadVideo();
+        if (active.value) videoPlayer.value?.loadVideo();
     });
     playlistId.value = route.query.list;
     index.value = Number(route.query.index);
@@ -785,7 +785,7 @@ onActivated(() => {
     showChapters.value = !getPreferenceBoolean("minimizeChapters", false);
     if (video.value?.duration) {
         document.title = video.value.title + " - Piped";
-        videoPlayer.value.loadVideo();
+        videoPlayer.value?.loadVideo();
     }
     window.addEventListener("scroll", handleScroll);
 });
