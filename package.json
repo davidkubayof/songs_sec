@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "eslint --fix src/components/VideoPlayer.vue && vite build",
         "preview": "vite preview",
         "format": "prettier -w --ignore-path .gitignore **/**.{js,vue,json}",
         "lint": "eslint --fix --color ."
