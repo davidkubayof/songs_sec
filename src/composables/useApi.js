@@ -67,7 +67,8 @@ export function fetchStreamInfo(videoId) {
     if (isMockStreamsEnabled()) {
         return Promise.resolve(getMockStreamResponse(videoId));
     }
-    return fetchJson(apiUrl() + "/streams/" + videoId);
+    const streamsApi = import.meta.env.VITE_STREAMS_API || apiUrl();
+    return fetchJson(streamsApi + "/streams/" + videoId);
 }
 
 export function authApiUrl() {
